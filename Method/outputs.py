@@ -22,3 +22,12 @@ def outputList(data_list, info_level=0, print_cols=10):
     print(line_start + "]")
     return True
 
+def outputJson(data_json, info_level=0):
+    line_start = "\t" * info_level
+
+    print(line_start + "{")
+    for key in data_json.keys():
+        print(line_start + "\t " + key + ": ", data_json[key])
+    print(line_start + "}")
+    return True
+

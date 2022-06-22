@@ -4,6 +4,8 @@
 import os
 import json
 
+from Method.outputs import outputJson
+
 class Model(object):
     def __init__(self, root_path=None):
         self.root_path = None
@@ -117,7 +119,8 @@ class Model(object):
         line_start = "\t" * info_level
         print(line_start + "[Model]")
         print(line_start + "\t root_path =", self.root_path)
-        print(line_start + "\t normalized_json =", self.normalized_json)
+        print(line_start + "\t normalized_json =")
+        outputJson(self.normalized_json, info_level + 2)
         print(line_start + "\t normalized_obj_file_path =", self.normalized_obj_file_path)
         print(line_start + "\t normalized_mtl_file_path =", self.normalized_mtl_file_path)
         print(line_start + "\t normalized_solid_binvox_file_path =", self.normalized_solid_binvox_file_path)
