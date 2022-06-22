@@ -2,13 +2,14 @@
 # -*- coding: utf-8 -*-
 
 import os
+from tqdm import tqdm
 
 from Data.model import Model
 
 from Method.outputs import outputList
 
 class Synset(object):
-    def __init__(self, root_path=None):
+    def __init__(self, root_path=None, output_info=True):
         self.root_path = None
 
         self.id = None
@@ -16,7 +17,7 @@ class Synset(object):
         self.model_dict = {}
 
         if root_path is not None:
-            self.loadRootPath(root_path)
+            self.loadRootPath(root_path, output_info)
         return
 
     def reset(self):
@@ -33,14 +34,21 @@ class Synset(object):
         self.model_id_list = os.listdir(self.root_path)
         return True
 
-    def loadModelDict(self):
+    def loadModelDict(self, output_info=True):
+        if output_info:
+            for model_id in tqdm(self.model_id_list):
+                model_root_path = self.root_path + model_id + "/"
+                model = Model(model_root_path)
+                self.model_dict[model_id] = model
+            return True
+
         for model_id in self.model_id_list:
             model_root_path = self.root_path + model_id + "/"
             model = Model(model_root_path)
             self.model_dict[model_id] = model
         return True
 
-    def loadRootPath(self, root_path):
+    def loadRootPath(self, root_path, output_info=True):
         self.reset()
 
         if not os.path.exists(root_path):
@@ -62,7 +70,7 @@ class Synset(object):
             print("\t loadModelIdList failed!")
             return False
 
-        if not self.loadModelDict():
+        if not self.loadModelDict(output_info):
             print("[ERROR][Synset::loadRootPath]")
             print("\t loadModelDict failed!")
             return False

@@ -2,20 +2,21 @@
 # -*- coding: utf-8 -*-
 
 import os
+from tqdm import tqdm
 
 from Data.synset import Synset
 
 from Method.outputs import outputList
 
 class Dataset(object):
-    def __init__(self, root_path=None):
+    def __init__(self, root_path=None, output_info=True):
         self.root_path = None
 
         self.synset_id_list = []
         self.synset_dict = {}
 
         if root_path is not None:
-            self.loadRootPath(root_path)
+            self.loadRootPath(root_path, output_info)
         return
 
     def reset(self):
@@ -34,14 +35,21 @@ class Dataset(object):
             self.synset_id_list.append(root_folder_name)
         return True
 
-    def loadSynsetDict(self):
+    def loadSynsetDict(self, output_info=True):
+        if output_info:
+            for synset_id in tqdm(self.synset_id_list):
+                synset_root_path = self.root_path + synset_id + "/"
+                synset = Synset(synset_root_path, False)
+                self.synset_dict[synset_id] = synset
+            return True
+
         for synset_id in self.synset_id_list:
             synset_root_path = self.root_path + synset_id + "/"
-            synset = Synset(synset_root_path)
+            synset = Synset(synset_root_path, False)
             self.synset_dict[synset_id] = synset
         return True
 
-    def loadRootPath(self, root_path):
+    def loadRootPath(self, root_path, output_info=True):
         self.reset()
 
         if not os.path.exists(root_path):
@@ -58,7 +66,7 @@ class Dataset(object):
             print("\t loadSynsetIdList failed!")
             return False
 
-        if not self.loadSynsetDict():
+        if not self.loadSynsetDict(output_info):
             print("[ERROR][Synset::loadRootPath]")
             print("\t loadSynsetDict failed!")
             return False
