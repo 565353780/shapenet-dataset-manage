@@ -50,6 +50,18 @@ class DatasetLoader(object):
                 self.csv_dict[SynsetId][ModelId] = {"Id": Id, "Split": Split}
         return True
 
+    def getSplit(self, synset_id, model_id):
+        if synset_id not in self.csv_dict.keys():
+            print("[ERROR][DatasetLoader::getSplit]")
+            print("\t synset_id not found in csv_dict!")
+            return None
+        if model_id not in self.csv_dict[synset_id].keys():
+            print("[ERROR][DatasetLoader::getSplit]")
+            print("\t model_id not found in csv_dict!")
+            return None
+
+        return self.csv_dict[synset_id][model_id]["Split"]
+
     def transObjToGrd(self, msh2df_path, grd_save_folder_path):
         total_trans_num = 10
 
@@ -141,6 +153,9 @@ class DatasetLoader(object):
             return False
         return True
 
+    def splitPly(self, ply_save_folder_path, split_save_folder_path):
+        return True
+
     def outputInfo(self, info_level=0, print_cols=10):
         self.dataset.outputInfo(info_level, print_cols)
         return True
@@ -152,11 +167,13 @@ def demo():
     grd2msh_path = "/home/chli/github/local-deep-implicit-functions/ldif/gaps/bin/x86_64/grd2msh"
     grd_save_folder_path = "/home/chli/scan2cad/shapenet/v2_grd/"
     ply_save_folder_path = "/home/chli/scan2cad/shapenet/v2_ply/"
+    split_save_folder_path = "/home/chli/scan2cad/shapenet/v2_split/"
 
     dataset_loader = DatasetLoader()
     dataset_loader.loadDataset(dataset_root_path)
     dataset_loader.loadCSVDict(csv_file_path)
     dataset_loader.transObjToPly(msh2df_path, grd2msh_path, grd_save_folder_path, ply_save_folder_path)
+    dataset_loader.splitPly(ply_save_folder_path, split_save_folder_path)
 
     dataset_loader.outputInfo()
     return True
