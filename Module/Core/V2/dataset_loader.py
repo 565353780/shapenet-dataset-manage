@@ -11,7 +11,9 @@ from Module.command_runner import CommandRunner
 class DatasetLoader(object):
     def __init__(self):
         self.dataset = Dataset()
-        # self.csv_dict[SynsetId][ModelId]
+        # self.csv_dict[SynsetId] = {key:ModelId}
+        # self.csv_dict[SynsetId][ModelId] = {key:Id, Split}
+        # self.csv_dict[SynsetId]["SubSynsetIdList"] = [SubSynsetId]
         self.csv_dict = {}
 
         self.command_runner = CommandRunner()
@@ -41,8 +43,11 @@ class DatasetLoader(object):
                 continue
             if SynsetId not in self.csv_dict.keys():
                 self.csv_dict[SynsetId] = {}
-                self.csv_dict[SynsetId]["subSynsetId"] = []
-            if SubSynsetId not in self.csv_dict[SynsetId]
+                self.csv_dict[SynsetId]["SubSynsetIdList"] = []
+            if SubSynsetId not in self.csv_dict[SynsetId]["SubSynsetIdList"]:
+                self.csv_dict[SynsetId]["SubSynsetIdList"].append(SubSynsetId)
+            if ModelId not in self.csv_dict[SynsetId].keys():
+                self.csv_dict[SynsetId][ModelId] = {"Id": Id, "Split": Split}
         return True
 
     def transObjToGrd(self, msh2df_path, grd_save_folder_path):
