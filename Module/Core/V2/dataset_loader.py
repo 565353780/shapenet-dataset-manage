@@ -1,11 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
+from tqdm import tqdm
+from subprocess import Popen
+
 from Data.dataset import Dataset
 
 class DatasetLoader(object):
     def __init__(self):
         self.dataset = Dataset()
+
+        self.dev_null = open(os.devnull, "w")
         return
 
     def reset(self):
@@ -19,15 +25,90 @@ class DatasetLoader(object):
             return False
         return True
 
+    def transObjToGrd(self, msh2df_path, grd_save_folder_path):
+        if grd_save_folder_path[-1] != "/":
+            grd_save_folder_path += "/"
+        os.makedirs(grd_save_folder_path, exist_ok=True)
+
+        subprocess_list = []
+
+        for synset_id in self.dataset.synset_id_list:
+            synset = self.dataset.synset_dict[synset_id]
+
+            synset_save_folder_path = grd_save_folder_path + synset_id + "/"
+            os.makedirs(synset_save_folder_path, exist_ok=True)
+
+            for model_id in synset.model_id_list:
+                model = synset.model_dict[model_id]
+
+                model_grd_file_path = synset_save_folder_path + model_id + ".grd"
+
+                command = msh2df_path + " " + model.normalized_obj_file_path + " " + model_grd_file_path + \
+                    " -estimate_sign -spacing 0.002 -v"
+                subprocess_list.append(Popen(command, stdout=self.dev_null, shell=True))
+        for subprocess in tqdm(subprocess_list):
+            subprocess.wait()
+        return True
+
+    def transGrdToPly(self, grd2msh_path, grd_save_folder_path, ply_save_folder_path):
+        if not os.path.exists(grd_save_folder_path):
+            print("[ERROR][DatasetLoader::transGrdToPly]")
+            print("\t grd_save_folder_path not exist!")
+            return False
+
+        if grd_save_folder_path[-1] != "/":
+            grd_save_folder_path += "/"
+
+        if ply_save_folder_path[-1] != "/":
+            ply_save_folder_path += "/"
+        os.makedirs(ply_save_folder_path, exist_ok=True)
+
+        subprocess_list = []
+
+        grd_synset_id_list = os.listdir(grd_save_folder_path)
+        for synset_id in grd_synset_id_list:
+            synset_grd_folder_path = grd_save_folder_path + synset_id + "/"
+            grd_model_id_list = os.listdir(synset_grd_folder_path)
+
+            synset_save_folder_path = ply_save_folder_path + synset_id + "/"
+            os.makedirs(synset_save_folder_path, exist_ok=True)
+
+            for model_id in grd_model_id_list:
+                model_grd_file_path = synset_grd_folder_path + model_id + ".grd"
+                model_ply_file_path = synset_save_folder_path + model_id + ".ply"
+
+                command = grd2msh_path + " " + model_grd_file_path + " " + model_ply_file_path
+                subprocess_list.append(Popen(command, stdout=self.dev_null, shell=True))
+        for subprocess in tqdm(subprocess_list):
+            subprocess.wait()
+        return True
+
+    def transObjToPly(self, msh2df_path, grd2msh_path, grd_save_folder_path, ply_save_folder_path):
+        if not self.transObjToGrd(msh2df_path, grd_save_folder_path):
+            print("[ERROR][DatasetLoader::transObjToPly]")
+            print("\t transObjToGrd failed!")
+            return False
+        if not self.transGrdToPly(grd2msh_path, grd_save_folder_path, ply_save_folder_path):
+            print("[ERROR][DatasetLoader::transObjToPly]")
+            print("\t transGrdToPly failed!")
+            return False
+        return True
+
     def outputInfo(self, info_level=0, print_cols=10):
         self.dataset.outputInfo(info_level, print_cols)
         return True
 
 def demo():
     dataset_root_path = "/home/chli/scan2cad/shapenet/ShapeNetCore.v2/"
+    msh2df_path = "/home/chli/github/local-deep-implicit-functions/ldif/gaps/bin/x86_64/msh2df"
+    grd2msh_path = "/home/chli/github/local-deep-implicit-functions/ldif/gaps/bin/x86_64/grd2msh"
+    grd_save_folder_path = "/home/chli/scan2cad/shapenet/v2_grd/"
+    ply_save_folder_path = "/home/chli/scan2cad/shapenet/v2_ply/"
 
     dataset_loader = DatasetLoader()
     dataset_loader.loadDataset(dataset_root_path)
+    dataset_loader.transObjToPly(msh2df_path, grd2msh_path, grd_save_folder_path, ply_save_folder_path)
+
     dataset_loader.outputInfo()
     return True
 
