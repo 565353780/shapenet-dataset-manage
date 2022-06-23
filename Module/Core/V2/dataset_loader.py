@@ -3,6 +3,7 @@
 
 import os
 import csv
+from shutil import copyfile
 
 from Data.dataset import Dataset
 
@@ -154,6 +155,47 @@ class DatasetLoader(object):
         return True
 
     def splitPly(self, ply_save_folder_path, split_save_folder_path):
+        if not os.path.exists(ply_save_folder_path):
+            print("[ERROR][DatasetLoader::splitPly]")
+            print("\t ply_save_folder_path not exist!")
+            return False
+
+        if ply_save_folder_path[-1] != "/":
+            ply_save_folder_path += "/"
+
+        if split_save_folder_path[-1] != "/":
+            split_save_folder_path += "/"
+        os.makedirs(split_save_folder_path, exist_ok=True)
+
+        split_train_folder_path = split_save_folder_path + "train/"
+        split_test_folder_path = split_save_folder_path + "test/"
+        split_val_folder_path = split_save_folder_path + "val/"
+        os.makedirs(split_train_folder_path, exist_ok=True)
+        os.makedirs(split_test_folder_path, exist_ok=True)
+        os.makedirs(split_val_folder_path, exist_ok=True)
+
+        ply_synset_id_list = os.listdir(ply_save_folder_path)
+        for synset_id in ply_synset_id_list:
+            synset_ply_folder_path = ply_save_folder_path + synset_id + "/"
+            model_ply_file_name_list = os.listdir(synset_ply_folder_path)
+
+            synset_save_folder_path = split_save_folder_path + synset_id + "/"
+            os.makedirs(synset_save_folder_path, exist_ok=True)
+
+            for model_ply_file_name in model_ply_file_name_list:
+                model_ply_file_path = synset_ply_folder_path + model_ply_file_name
+
+                model_id = model_ply_file_name.split(".")[0]
+                model_split_file_path = synset_save_folder_path + model_id + ".split"
+                if os.path.exists(model_split_file_path):
+                    continue
+
+                command = ply2msh_path + " " + model_ply_file_path + " " + model_split_file_path
+                self.command_runner.addCommand(command)
+
+        print("[INFO][DatasetLoader::transGrdToPly]")
+        print("\t start trans files from ply to split...")
+        self.command_runner.start()
         return True
 
     def outputInfo(self, info_level=0, print_cols=10):
