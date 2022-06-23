@@ -7,11 +7,13 @@ from subprocess import Popen
 
 from Data.dataset import Dataset
 
+from Module.command_runner import CommandRunner
+
 class DatasetLoader(object):
     def __init__(self):
         self.dataset = Dataset()
 
-        self.dev_null = open(os.devnull, "w")
+        self.command_runner = CommandRunner()
         return
 
     def reset(self):
@@ -30,7 +32,7 @@ class DatasetLoader(object):
             grd_save_folder_path += "/"
         os.makedirs(grd_save_folder_path, exist_ok=True)
 
-        subprocess_list = []
+        self.command_runner.reset()
 
         for synset_id in self.dataset.synset_id_list:
             synset = self.dataset.synset_dict[synset_id]
@@ -45,9 +47,9 @@ class DatasetLoader(object):
 
                 command = msh2df_path + " " + model.normalized_obj_file_path + " " + model_grd_file_path + \
                     " -estimate_sign -spacing 0.002 -v"
-                subprocess_list.append(Popen(command, stdout=self.dev_null, shell=True))
-        for subprocess in tqdm(subprocess_list):
-            subprocess.wait()
+                self.command_runner.addCommand(command)
+
+        self.command_runner.start()
         return True
 
     def transGrdToPly(self, grd2msh_path, grd_save_folder_path, ply_save_folder_path):
@@ -63,7 +65,7 @@ class DatasetLoader(object):
             ply_save_folder_path += "/"
         os.makedirs(ply_save_folder_path, exist_ok=True)
 
-        subprocess_list = []
+        self.command_runner.reset()
 
         grd_synset_id_list = os.listdir(grd_save_folder_path)
         for synset_id in grd_synset_id_list:
@@ -78,9 +80,9 @@ class DatasetLoader(object):
                 model_ply_file_path = synset_save_folder_path + model_id + ".ply"
 
                 command = grd2msh_path + " " + model_grd_file_path + " " + model_ply_file_path
-                subprocess_list.append(Popen(command, stdout=self.dev_null, shell=True))
-        for subprocess in tqdm(subprocess_list):
-            subprocess.wait()
+                self.command_runner.addCommand(command)
+
+        self.command_runner.start()
         return True
 
     def transObjToPly(self, msh2df_path, grd2msh_path, grd_save_folder_path, ply_save_folder_path):
