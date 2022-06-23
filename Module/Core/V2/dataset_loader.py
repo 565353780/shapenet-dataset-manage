@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-from tqdm import tqdm
-from subprocess import Popen
 
 from Data.dataset import Dataset
 
@@ -28,6 +26,8 @@ class DatasetLoader(object):
         return True
 
     def transObjToGrd(self, msh2df_path, grd_save_folder_path):
+        total_trans_num = 10
+
         if grd_save_folder_path[-1] != "/":
             grd_save_folder_path += "/"
         os.makedirs(grd_save_folder_path, exist_ok=True)
@@ -40,14 +40,23 @@ class DatasetLoader(object):
             synset_save_folder_path = grd_save_folder_path + synset_id + "/"
             os.makedirs(synset_save_folder_path, exist_ok=True)
 
+            synset_trans_num = 0
             for model_id in synset.model_id_list:
                 model = synset.model_dict[model_id]
+                if model.normalized_obj_file_path is None:
+                    continue
 
                 model_grd_file_path = synset_save_folder_path + model_id + ".grd"
+                if os.path.exists(model_grd_file_path):
+                    continue
 
                 command = msh2df_path + " " + model.normalized_obj_file_path + " " + model_grd_file_path + \
                     " -estimate_sign -spacing 0.002 -v"
                 self.command_runner.addCommand(command)
+
+                synset_trans_num += 1
+                if synset_trans_num >= total_trans_num:
+                    break
 
         self.command_runner.start()
         return True
@@ -70,14 +79,18 @@ class DatasetLoader(object):
         grd_synset_id_list = os.listdir(grd_save_folder_path)
         for synset_id in grd_synset_id_list:
             synset_grd_folder_path = grd_save_folder_path + synset_id + "/"
-            grd_model_id_list = os.listdir(synset_grd_folder_path)
+            model_grd_file_name_list = os.listdir(synset_grd_folder_path)
 
             synset_save_folder_path = ply_save_folder_path + synset_id + "/"
             os.makedirs(synset_save_folder_path, exist_ok=True)
 
-            for model_id in grd_model_id_list:
-                model_grd_file_path = synset_grd_folder_path + model_id + ".grd"
+            for model_grd_file_name in model_grd_file_name_list:
+                model_grd_file_path = synset_grd_folder_path + model_grd_file_name
+
+                model_id = model_grd_file_name.split(".")[0]
                 model_ply_file_path = synset_save_folder_path + model_id + ".ply"
+                if os.path.exists(model_ply_file_path):
+                    continue
 
                 command = grd2msh_path + " " + model_grd_file_path + " " + model_ply_file_path
                 self.command_runner.addCommand(command)

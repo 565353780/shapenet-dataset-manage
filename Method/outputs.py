@@ -25,6 +25,10 @@ def outputList(data_list, info_level=0, print_cols=10):
 def outputJson(data_json, info_level=0):
     line_start = "\t" * info_level
 
+    if data_json is None:
+        print(line_start + "None")
+        return True
+
     print(line_start + "{")
     for key in data_json.keys():
         print(line_start + "\t " + key + ": ", data_json[key])
