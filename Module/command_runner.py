@@ -34,6 +34,9 @@ class CommandRunner(object):
         if len(self.command_list) == 0:
             return None
 
+        if self.next_start_command_idx >= len(self.command_list):
+            return None
+
         command = self.command_list[self.next_start_command_idx]
         self.next_start_command_idx += 1
         return command

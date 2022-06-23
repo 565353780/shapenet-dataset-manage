@@ -48,6 +48,9 @@ class DatasetLoader(object):
 
                 model_grd_file_path = synset_save_folder_path + model_id + ".grd"
                 if os.path.exists(model_grd_file_path):
+                    synset_trans_num += 1
+                    if synset_trans_num >= total_trans_num:
+                        break
                     continue
 
                 command = msh2df_path + " " + model.normalized_obj_file_path + " " + model_grd_file_path + \
@@ -58,6 +61,8 @@ class DatasetLoader(object):
                 if synset_trans_num >= total_trans_num:
                     break
 
+        print("[INFO][DatasetLoader::transObjToGrd]")
+        print("\t start trans files from obj to grd...")
         self.command_runner.start()
         return True
 
@@ -95,6 +100,8 @@ class DatasetLoader(object):
                 command = grd2msh_path + " " + model_grd_file_path + " " + model_ply_file_path
                 self.command_runner.addCommand(command)
 
+        print("[INFO][DatasetLoader::transGrdToPly]")
+        print("\t start trans files from grd to ply...")
         self.command_runner.start()
         return True
 
