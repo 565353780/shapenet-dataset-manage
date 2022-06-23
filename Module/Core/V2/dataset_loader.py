@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import csv
 
 from Data.dataset import Dataset
 
@@ -10,6 +11,8 @@ from Module.command_runner import CommandRunner
 class DatasetLoader(object):
     def __init__(self):
         self.dataset = Dataset()
+        # self.csv_dict[SynsetId][ModelId]
+        self.csv_dict = {}
 
         self.command_runner = CommandRunner()
         return
@@ -23,6 +26,23 @@ class DatasetLoader(object):
             print("[ERROR][DatasetLoader::loadDataset]")
             print("\t loadRootPath failed!")
             return False
+        return True
+
+    def loadCSVDict(self, csv_file_path):
+        if not os.path.exists(csv_file_path):
+            print("[ERROR][DatasetLoader::loadCSVDict]")
+            print("\t csv file not exist!")
+            return False
+
+        csv_reader = csv.reader(open(csv_file_path))
+        for line in csv_reader:
+            Id, SynsetId, SubSynsetId, ModelId, Split = line
+            if Id == "id":
+                continue
+            if SynsetId not in self.csv_dict.keys():
+                self.csv_dict[SynsetId] = {}
+                self.csv_dict[SynsetId]["subSynsetId"] = []
+            if SubSynsetId not in self.csv_dict[SynsetId]
         return True
 
     def transObjToGrd(self, msh2df_path, grd_save_folder_path):
@@ -122,6 +142,7 @@ class DatasetLoader(object):
 
 def demo():
     dataset_root_path = "/home/chli/scan2cad/shapenet/ShapeNetCore.v2/"
+    csv_file_path = "/home/chli/scan2cad/shapenet/all.csv"
     msh2df_path = "/home/chli/github/local-deep-implicit-functions/ldif/gaps/bin/x86_64/msh2df"
     grd2msh_path = "/home/chli/github/local-deep-implicit-functions/ldif/gaps/bin/x86_64/grd2msh"
     grd_save_folder_path = "/home/chli/scan2cad/shapenet/v2_grd/"
@@ -129,6 +150,7 @@ def demo():
 
     dataset_loader = DatasetLoader()
     dataset_loader.loadDataset(dataset_root_path)
+    dataset_loader.loadCSVDict(csv_file_path)
     dataset_loader.transObjToPly(msh2df_path, grd2msh_path, grd_save_folder_path, ply_save_folder_path)
 
     dataset_loader.outputInfo()
