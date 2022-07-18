@@ -3,7 +3,6 @@
 
 import os
 import csv
-from shutil import copyfile
 
 from Data.dataset import Dataset
 
