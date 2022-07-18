@@ -3,7 +3,7 @@
 ## Install
 
 ```bash
-pip install tqdm
+pip install tqdm mesh-to-sdf open3d
 ```
 
 ## Run
