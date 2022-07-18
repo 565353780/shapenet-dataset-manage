@@ -88,7 +88,11 @@ def getRaycastingScene(mesh):
 
 def getPointDistListToMesh(scene, point_list):
     query_point_list = o3d.core.Tensor(point_list, dtype=o3d.core.Dtype.Float32)
-
     unsigned_distance_list = scene.compute_distance(query_point_list).numpy()
     return unsigned_distance_list
+
+def getSignedPointDistListToMesh(scene, point_list):
+    query_point_list = o3d.core.Tensor(point_list, dtype=o3d.core.Dtype.Float32)
+    signed_distance_list = scene.compute_signed_distance(query_point_list).numpy()
+    return signed_distance_list
 
