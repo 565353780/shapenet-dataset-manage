@@ -13,3 +13,10 @@ def createFileFolder(file_path):
     os.makedirs(file_folder_path, exist_ok=True)
     return True
 
+def getFilePath(file_basepath, param_name_value_list, file_format):
+    file_path = file_basepath
+    for param_name_value in param_name_value_list:
+        file_path += "_" + param_name_value[0] + "_" + str(param_name_value[1])
+    file_path += "." + file_format
+    return file_path
+
