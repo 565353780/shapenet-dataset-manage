@@ -2,8 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import os
+import numpy as np
 import open3d as o3d
 from math import pi
+
+from Method.paths import createFileFolder
 
 def getRad(angle):
     rad = angle * pi / 180.0
@@ -95,4 +98,27 @@ def getSignedPointDistListToMesh(scene, point_list):
     query_point_list = o3d.core.Tensor(point_list, dtype=o3d.core.Dtype.Float32)
     signed_distance_list = scene.compute_signed_distance(query_point_list).numpy()
     return signed_distance_list
+
+def saveUDF(udf, udf_save_file_path):
+    if udf is None:
+        print("[ERROR][udfs::saveUDF]")
+        print("\t udf is None!")
+        return False
+
+    if not createFileFolder(udf_save_file_path):
+        print("[ERROR][udfs::saveUDF]")
+        print("\t createFileFolder failed!")
+        return False
+
+    np.save(udf_save_file_path, udf)
+    return True
+
+def loadUDF(udf_file_path):
+    if not os.path.exists(udf_file_path):
+        print("[ERROR][udfs::loadUDF]")
+        print("\t udf_file not exist!")
+        return None
+
+    udf = np.load(udf_file_path)
+    return udf
 
