@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from Config.sample import SAMPLE_NUM
+from Config.sample import SAMPLE_POINT_MATRIX
 
-from Method.samples import getSamplePointMatrix
 from Method.paths import createFileFolder, getFilePath
 from Method.udfs import \
     loadMesh, normalizeMesh, rotateMesh, \
@@ -12,8 +11,6 @@ from Method.udfs import \
 
 class UDFGenerator(object):
     def __init__(self, mesh_file_path=None):
-        self.sample_point_matrix = getSamplePointMatrix(SAMPLE_NUM)
-
         self.mesh_file_path = mesh_file_path
 
         self.mesh = None
@@ -45,7 +42,7 @@ class UDFGenerator(object):
             return None
 
         scene = getRaycastingScene(self.mesh)
-        udf = getPointDistListToMesh(scene, self.sample_point_matrix)
+        udf = getPointDistListToMesh(scene, SAMPLE_POINT_MATRIX)
 
         if not rotateMesh(self.mesh, -z_angle, -x_angle, -y_angle):
             print("[ERROR][UDFGenerator::getUDF]")
