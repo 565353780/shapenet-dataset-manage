@@ -6,6 +6,8 @@ import numpy as np
 import open3d as o3d
 from math import pi
 
+from Config.sample import SAMPLE_POINT_MATRIX
+
 from Method.paths import createFileFolder
 
 def getRad(angle):
@@ -121,4 +123,16 @@ def loadUDF(udf_file_path):
 
     udf = np.load(udf_file_path)
     return udf
+
+def visualUDF(udf_file_path):
+    dist_max = 0.1
+
+    udf = loadUDF(udf_file_path)
+
+    if udf is None:
+        print("[ERROR][udfs::visualUDF]")
+        print("\t loadUDF failed!")
+        return False
+
+    return True
 
