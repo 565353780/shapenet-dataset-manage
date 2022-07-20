@@ -125,7 +125,7 @@ def loadUDF(udf_file_path):
     return udf
 
 def visualUDF(udf_file_path):
-    dist_max = 0.1
+    dist_max = 10.0
 
     udf = loadUDF(udf_file_path)
 
@@ -134,5 +134,31 @@ def visualUDF(udf_file_path):
         print("\t loadUDF failed!")
         return False
 
+    point_list = []
+    dist_list = []
+
+    for z_idx in range(SAMPLE_POINT_MATRIX.shape[0]):
+        for x_idx in range(SAMPLE_POINT_MATRIX.shape[1]):
+            for y_idx in range(SAMPLE_POINT_MATRIX.shape[2]):
+                udf_value = udf[z_idx][x_idx][y_idx]
+                if udf_value > dist_max:
+                    continue
+                point_list.append(SAMPLE_POINT_MATRIX[z_idx][x_idx][y_idx])
+                dist_list.append(udf_value)
+
+    max_dist = np.max(dist_list)
+
+    color_list = []
+    for dist in dist_list:
+        color_weight = 1.0 * dist / max_dist
+        color_list.append([color_weight * 255,
+                           color_weight * 255,
+                           color_weight * 255])
+
+    pcd = o3d.geometry.PointCloud()
+    pcd.points = o3d.utility.Vector3dVector(point_list)
+    pcd.colors = o3d.utility.Vector3dVector(color_list)
+
+    o3d.visualization.draw_geometries([pcd])
     return True
 
