@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from Config.sample import SAMPLE_POINT_MATRIX
+from Config.sample import \
+    SAMPLE_POINT_MATRIX, SAMPLE_Z_ANGLE_LIST, \
+    SAMPLE_X_ANGLE_LIST, SAMPLE_Y_ANGLE_LIST
 
 from Method.paths import createFileFolder, getFilePath
 from Method.udfs import \
@@ -50,19 +52,15 @@ class UDFGenerator(object):
             return None
         return udf
 
-    def generateUDF(self,
-                    z_angle_list,
-                    x_angle_list,
-                    y_angle_list,
-                    udf_save_file_basepath):
+    def generateUDF(self, udf_save_file_basepath):
         if not createFileFolder(udf_save_file_basepath):
             print("[ERROR][UDFGenerator::generateUDF]")
             print("\t createFileFolder failed!")
             return False
 
-        for z_angle in z_angle_list:
-            for x_angle in x_angle_list:
-                for y_angle in y_angle_list:
+        for z_angle in SAMPLE_Z_ANGLE_LIST:
+            for x_angle in SAMPLE_X_ANGLE_LIST:
+                for y_angle in SAMPLE_Y_ANGLE_LIST:
                     udf = self.getUDF(z_angle, x_angle, y_angle)
 
                     if udf is None:
@@ -83,10 +81,9 @@ class UDFGenerator(object):
 
 def demo():
     mesh_file_path = "/home/chli/scan2cad/im3d/data/pix3d/metadata/model/bed/IKEA_BEDDINGE/model.obj"
-    angle_list = [-120, 0, 120]
     udf_save_file_basepath = "/home/chli/scan2cad/im3d_udf/bed/IKEA_BEDDINGE/udf"
 
     udf_generator = UDFGenerator(mesh_file_path)
-    udf_generator.generateUDF(angle_list, angle_list, angle_list, udf_save_file_basepath)
+    udf_generator.generateUDF(udf_save_file_basepath)
     return True
 
