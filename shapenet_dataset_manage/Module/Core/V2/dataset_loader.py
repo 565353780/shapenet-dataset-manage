@@ -4,11 +4,13 @@
 import os
 import csv
 
-from Data.dataset import Dataset
+from shapenet_dataset_manage.Data.dataset import Dataset
 
-from Module.command_runner import CommandRunner
+from shapenet_dataset_manage.Module.command_runner import CommandRunner
+
 
 class DatasetLoader(object):
+
     def __init__(self):
         self.dataset = Dataset()
         # self.csv_dict[SynsetId] = {key:ModelId}
@@ -24,17 +26,11 @@ class DatasetLoader(object):
         return True
 
     def loadDataset(self, dataset_root_path):
-        if not self.dataset.loadRootPath(dataset_root_path):
-            print("[ERROR][DatasetLoader::loadDataset]")
-            print("\t loadRootPath failed!")
-            return False
+        assert self.dataset.loadRootPath(dataset_root_path)
         return True
 
     def loadCSVDict(self, csv_file_path):
-        if not os.path.exists(csv_file_path):
-            print("[ERROR][DatasetLoader::loadCSVDict]")
-            print("\t csv file not exist!")
-            return False
+        assert os.path.exists(csv_file_path)
 
         csv_reader = csv.reader(open(csv_file_path))
         for line in csv_reader:
@@ -51,14 +47,8 @@ class DatasetLoader(object):
         return True
 
     def getSplit(self, synset_id, model_id):
-        if synset_id not in self.csv_dict.keys():
-            print("[ERROR][DatasetLoader::getSplit]")
-            print("\t synset_id not found in csv_dict!")
-            return None
-        if model_id not in self.csv_dict[synset_id].keys():
-            print("[ERROR][DatasetLoader::getSplit]")
-            print("\t model_id not found in csv_dict!")
-            return None
+        assert synset_id in self.csv_dict.keys()
+        assert model_id in self.csv_dict[synset_id].keys()
 
         return self.csv_dict[synset_id][model_id]["Split"]
 
@@ -103,11 +93,9 @@ class DatasetLoader(object):
         self.command_runner.start()
         return True
 
-    def transGrdToPly(self, grd2msh_path, grd_save_folder_path, ply_save_folder_path):
-        if not os.path.exists(grd_save_folder_path):
-            print("[ERROR][DatasetLoader::transGrdToPly]")
-            print("\t grd_save_folder_path not exist!")
-            return False
+    def transGrdToPly(self, grd2msh_path, grd_save_folder_path,
+                      ply_save_folder_path):
+        assert os.path.exists(grd_save_folder_path)
 
         if grd_save_folder_path[-1] != "/":
             grd_save_folder_path += "/"
@@ -142,22 +130,15 @@ class DatasetLoader(object):
         self.command_runner.start()
         return True
 
-    def transObjToPly(self, msh2df_path, grd2msh_path, grd_save_folder_path, ply_save_folder_path):
-        if not self.transObjToGrd(msh2df_path, grd_save_folder_path):
-            print("[ERROR][DatasetLoader::transObjToPly]")
-            print("\t transObjToGrd failed!")
-            return False
-        if not self.transGrdToPly(grd2msh_path, grd_save_folder_path, ply_save_folder_path):
-            print("[ERROR][DatasetLoader::transObjToPly]")
-            print("\t transGrdToPly failed!")
-            return False
+    def transObjToPly(self, msh2df_path, grd2msh_path, grd_save_folder_path,
+                      ply_save_folder_path):
+        assert self.transObjToGrd(msh2df_path, grd_save_folder_path)
+        assert self.transGrdToPly(grd2msh_path, grd_save_folder_path,
+                                  ply_save_folder_path)
         return True
 
     def splitPly(self, ply_save_folder_path, split_save_folder_path):
-        if not os.path.exists(ply_save_folder_path):
-            print("[ERROR][DatasetLoader::splitPly]")
-            print("\t ply_save_folder_path not exist!")
-            return False
+        assert os.path.exists(ply_save_folder_path)
 
         if ply_save_folder_path[-1] != "/":
             ply_save_folder_path += "/"
@@ -200,25 +181,3 @@ class DatasetLoader(object):
     def outputInfo(self, info_level=0, print_cols=10):
         self.dataset.outputInfo(info_level, print_cols)
         return True
-
-def demo():
-    dataset_root_path = "/home/chli/scan2cad/shapenet/ShapeNetCore.v2/"
-    csv_file_path = "/home/chli/scan2cad/shapenet/all.csv"
-    msh2df_path = "/home/chli/github/local-deep-implicit-functions/ldif/gaps/bin/x86_64/msh2df"
-    grd2msh_path = "/home/chli/github/local-deep-implicit-functions/ldif/gaps/bin/x86_64/grd2msh"
-    grd_save_folder_path = "/home/chli/scan2cad/shapenet/v2_grd/"
-    ply_save_folder_path = "/home/chli/scan2cad/shapenet/v2_ply/"
-    split_save_folder_path = "/home/chli/scan2cad/shapenet/v2_split/"
-
-    dataset_loader = DatasetLoader()
-    dataset_loader.loadDataset(dataset_root_path)
-    dataset_loader.loadCSVDict(csv_file_path)
-    dataset_loader.transObjToPly(msh2df_path, grd2msh_path, grd_save_folder_path, ply_save_folder_path)
-    dataset_loader.splitPly(ply_save_folder_path, split_save_folder_path)
-
-    dataset_loader.outputInfo()
-    return True
-
-if __name__ == "__main__":
-    demo()
-

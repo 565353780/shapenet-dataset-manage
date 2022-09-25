@@ -4,9 +4,11 @@
 import os
 import json
 
-from Method.outputs import outputJson
+from shapenet_dataset_manage.Method.outputs import outputJson
+
 
 class Model(object):
+
     def __init__(self, root_path=None):
         self.root_path = None
 
@@ -121,13 +123,18 @@ class Model(object):
         print(line_start + "\t root_path =", self.root_path)
         print(line_start + "\t normalized_json =")
         outputJson(self.normalized_json, info_level + 2)
-        print(line_start + "\t normalized_obj_file_path =", self.normalized_obj_file_path)
-        print(line_start + "\t normalized_mtl_file_path =", self.normalized_mtl_file_path)
-        print(line_start + "\t normalized_solid_binvox_file_path =", self.normalized_solid_binvox_file_path)
-        print(line_start + "\t normalized_surface_binvox_file_path =", self.normalized_surface_binvox_file_path)
+        print(line_start + "\t normalized_obj_file_path =",
+              self.normalized_obj_file_path)
+        print(line_start + "\t normalized_mtl_file_path =",
+              self.normalized_mtl_file_path)
+        print(line_start + "\t normalized_solid_binvox_file_path =",
+              self.normalized_solid_binvox_file_path)
+        print(line_start + "\t normalized_surface_binvox_file_path =",
+              self.normalized_surface_binvox_file_path)
         if self.exist_images:
-            print(line_start + "\t images_folder_path =", self.images_folder_path)
+            print(line_start + "\t images_folder_path =",
+                  self.images_folder_path)
         if self.exist_screenshots:
-            print(line_start + "\t screenshots_folder_path =", self.screenshots_folder_path)
+            print(line_start + "\t screenshots_folder_path =",
+                  self.screenshots_folder_path)
         return True
-

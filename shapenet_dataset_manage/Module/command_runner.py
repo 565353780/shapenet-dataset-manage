@@ -5,7 +5,9 @@ import os
 from tqdm import tqdm
 from subprocess import Popen
 
+
 class CommandRunner(object):
+
     def __init__(self, process_num=24):
         self.process_num = process_num
 
@@ -57,7 +59,8 @@ class CommandRunner(object):
     def getRunningCommandList(self):
         first_running_command_idx = self.finished_command_idx + 1
         last_running_command_idx = self.next_start_command_idx - 1
-        return self.command_list[first_running_command_idx:last_running_command_idx]
+        return self.command_list[
+            first_running_command_idx:last_running_command_idx]
 
     def start(self):
         print("[INFO][CommandRunner::start]")
@@ -70,7 +73,8 @@ class CommandRunner(object):
             if len(process_list) < self.process_num:
                 command = self.getCommand()
                 if command is not None:
-                    process_list.append(Popen(command, stdout=self.dev_null, shell=True))
+                    process_list.append(
+                        Popen(command, stdout=self.dev_null, shell=True))
             if len(process_list) == 0:
                 break
             for i in range(len(process_list) - 1, -1, -1):
@@ -80,4 +84,3 @@ class CommandRunner(object):
                     pbar.update(1)
         pbar.close()
         return True
-

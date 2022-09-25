@@ -4,11 +4,13 @@
 import os
 from tqdm import tqdm
 
-from Data.synset import Synset
+from shapenet_dataset_manage.Data.synset import Synset
 
-from Method.outputs import outputList
+from shapenet_dataset_manage.Method.outputs import outputList
+
 
 class Dataset(object):
+
     def __init__(self, root_path=None, output_info=True):
         self.root_path = None
 
@@ -80,4 +82,3 @@ class Dataset(object):
         outputList(self.synset_id_list, info_level + 2, print_cols)
         print(line_start + "\t synset size =", len(self.synset_id_list))
         return True
-
