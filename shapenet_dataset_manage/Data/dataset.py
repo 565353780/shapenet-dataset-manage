@@ -54,24 +54,13 @@ class Dataset(object):
     def loadRootPath(self, root_path, output_info=True):
         self.reset()
 
-        if not os.path.exists(root_path):
-            print("[ERROR][Dataset::loadRootPath]")
-            print("\t root_path not exist!")
-            return False
+        assert os.path.exists(root_path)
 
         self.root_path = root_path
-        if self.root_path[-1] != "/":
-            self.root_path += "/"
 
-        if not self.loadSynsetIdList():
-            print("[ERROR][Synset::loadRootPath]")
-            print("\t loadSynsetIdList failed!")
-            return False
+        assert self.loadSynsetIdList()
 
-        if not self.loadSynsetDict(output_info):
-            print("[ERROR][Synset::loadRootPath]")
-            print("\t loadSynsetDict failed!")
-            return False
+        assert self.loadSynsetDict(output_info)
         return True
 
     def outputInfo(self, info_level=0, print_cols=10):
