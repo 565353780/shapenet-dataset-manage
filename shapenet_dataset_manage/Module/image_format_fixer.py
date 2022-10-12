@@ -31,7 +31,8 @@ class ImageFormatFixer(object):
 
             image_file_path = image_folder_path + image_file_name
             is_valid, image_format = isImageFormatValid(image_file_path)
-            assert image_format is not None, image_file_path
+            if image_format == "empty":
+                return True
 
             if not is_valid:
                 return False
