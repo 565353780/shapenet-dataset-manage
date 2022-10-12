@@ -30,12 +30,32 @@ class ImageFormatFixer(object):
                 continue
 
             image_file_path = image_folder_path + image_file_name
-            is_valid, image_format = isImageFormatValid(image_file_path)
-            if image_format == "empty":
-                return True
-
+            is_valid, _ = isImageFormatValid(image_file_path)
             if not is_valid:
                 return False
+        return True
+
+    def removeModelMtl(self, model):
+        if not os.path.exists(model.normalized_mtl_file_path):
+            return True
+
+        obj_file_path = model.normalized_obj_file_path
+        if not os.path.exists(obj_file_path):
+            return True
+
+        new_obj_file_path = obj_file_path[:-4] + "_new.obj"
+
+        with open(obj_file_path, "r") as fr:
+            lines = fr.readlines()
+            with open(new_obj_file_path, "w") as fw:
+                for line in lines:
+                    if "mtllib" in line:
+                        fw.write("\n")
+                        continue
+                    fw.write(line)
+
+        removeFile(obj_file_path)
+        renameFile(new_obj_file_path, obj_file_path)
         return True
 
     def fixImageFormat(self, model):
@@ -44,7 +64,14 @@ class ImageFormatFixer(object):
 
         image_file_name_list = os.listdir(image_folder_path)
 
+        if len(image_file_name_list) == 0:
+            self.removeModelMtl(model)
+            return True
+
         image_rename_dict = {}
+
+        remove_mtl_image_file_name_list = []
+
         for image_file_name in image_file_name_list:
             if image_file_name.split(".")[-1] not in ["png", "jpg", "jpeg"]:
                 continue
@@ -53,10 +80,17 @@ class ImageFormatFixer(object):
             is_valid, image_format = isImageFormatValid(image_file_path)
             if is_valid:
                 continue
+
+            if image_format == "empty":
+                remove_mtl_image_file_name_list.append(image_file_name)
+                continue
+
             image_rename_dict[image_file_name] = image_file_name.split(
                 ".")[0] + "." + image_format
 
-        assert len(list(image_rename_dict.keys())) > 0
+        if len(list(image_rename_dict.keys())) == 0:
+            self.removeModelMtl(model)
+            return True
 
         for source_image_name, target_image_name in image_rename_dict.items():
             source_image_file_path = image_folder_path + source_image_name
@@ -73,10 +107,20 @@ class ImageFormatFixer(object):
             with open(new_mtl_file_path, "w") as fw:
                 for line in lines:
                     new_line = line
+                    for remove_mtl_image_file_name in remove_mtl_image_file_name_list:
+                        if remove_mtl_image_file_name in line:
+                            new_line = "\n"
+                            break
+
+                    if new_line == "\n":
+                        fw.write(new_line)
+                        continue
+
                     for source_image_name, target_image_name in image_rename_dict.items(
                     ):
                         if source_image_name not in line:
                             continue
+
                         new_line = line.replace(source_image_name,
                                                 target_image_name)
                         break
