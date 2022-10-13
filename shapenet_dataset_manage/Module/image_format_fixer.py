@@ -43,16 +43,17 @@ class ImageFormatFixer(object):
         if not os.path.exists(obj_file_path):
             return True
 
-        new_obj_file_path = obj_file_path[:-4] + "_new.obj"
-
         with open(obj_file_path, "r") as fr:
             lines = fr.readlines()
-            with open(new_obj_file_path, "w") as fw:
-                for line in lines:
-                    if "mtllib" in line:
-                        fw.write("\n")
-                        continue
-                    fw.write(line)
+
+        new_obj_file_path = obj_file_path[:-4] + "_new.obj"
+
+        with open(new_obj_file_path, "w") as fw:
+            for line in lines:
+                if "mtllib" in line:
+                    fw.write("\n")
+                    continue
+                fw.write(line)
 
         removeFile(obj_file_path)
         renameFile(new_obj_file_path, obj_file_path)
@@ -65,12 +66,12 @@ class ImageFormatFixer(object):
         image_file_name_list = os.listdir(image_folder_path)
 
         if len(image_file_name_list) == 0:
-            self.removeModelMtl(model)
+            #  self.removeModelMtl(model)
             return True
 
         image_rename_dict = {}
 
-        remove_mtl_image_file_name_list = []
+        empty_mtl_image_file_name_list = []
 
         for image_file_name in image_file_name_list:
             if image_file_name.split(".")[-1] not in ["png", "jpg", "jpeg"]:
@@ -82,15 +83,15 @@ class ImageFormatFixer(object):
                 continue
 
             if image_format == "empty":
-                remove_mtl_image_file_name_list.append(image_file_name)
+                empty_mtl_image_file_name_list.append(image_file_name)
                 continue
 
             image_rename_dict[image_file_name] = image_file_name.split(
                 ".")[0] + "." + image_format
 
-        if len(list(image_rename_dict.keys())) == 0:
-            self.removeModelMtl(model)
-            return True
+        #  if len(list(image_rename_dict.keys())) == 0:
+            #  self.removeModelMtl(model)
+            #  return True
 
         for source_image_name, target_image_name in image_rename_dict.items():
             source_image_file_path = image_folder_path + source_image_name
@@ -100,31 +101,32 @@ class ImageFormatFixer(object):
         mtl_file_path = model.normalized_mtl_file_path
         assert os.path.exists(mtl_file_path)
 
-        new_mtl_file_path = mtl_file_path[:-4] + "_new.mtl"
-
         with open(mtl_file_path, "r") as fr:
             lines = fr.readlines()
-            with open(new_mtl_file_path, "w") as fw:
-                for line in lines:
-                    new_line = line
-                    for remove_mtl_image_file_name in remove_mtl_image_file_name_list:
-                        if remove_mtl_image_file_name in line:
-                            new_line = "\n"
-                            break
 
-                    if new_line == "\n":
-                        fw.write(new_line)
+        new_mtl_file_path = mtl_file_path[:-4] + "_new.mtl"
+
+        with open(new_mtl_file_path, "w") as fw:
+            for line in lines:
+                new_line = line
+                for empty_mtl_image_file_name in empty_mtl_image_file_name_list:
+                    if empty_mtl_image_file_name in line:
+                        new_line = "\n"
+                        break
+
+                if new_line == "\n":
+                    fw.write(new_line)
+                    continue
+
+                for source_image_name, target_image_name in image_rename_dict.items(
+                ):
+                    if source_image_name not in line:
                         continue
 
-                    for source_image_name, target_image_name in image_rename_dict.items(
-                    ):
-                        if source_image_name not in line:
-                            continue
-
-                        new_line = line.replace(source_image_name,
-                                                target_image_name)
-                        break
-                    fw.write(new_line)
+                    new_line = line.replace(source_image_name,
+                                            target_image_name)
+                    break
+                fw.write(new_line)
 
         removeFile(mtl_file_path)
         renameFile(new_mtl_file_path, mtl_file_path)
