@@ -3,6 +3,7 @@
 
 import os
 import csv
+from tqdm import tqdm
 
 from shapenet_dataset_manage.Data.dataset import Dataset
 
@@ -51,6 +52,15 @@ class DatasetLoader(object):
         assert model_id in self.csv_dict[synset_id].keys()
 
         return self.csv_dict[synset_id][model_id]["Split"]
+
+    def toModelFilePathList(self) -> list:
+        model_file_path_list = []
+
+        for synset in self.dataset.synset_dict.values():
+            for model in synset.model_dict.values():
+                model_file_path = model.normalized_obj_file_path
+                model_file_path_list.append(model_file_path)
+        return model_file_path_list
 
     def transObjToGrd(self, msh2df_path, grd_save_folder_path):
         total_trans_num = 10

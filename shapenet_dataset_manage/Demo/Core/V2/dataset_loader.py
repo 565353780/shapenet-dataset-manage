@@ -31,9 +31,9 @@ def demo():
         mini_dataset_folder_path = "/home/chli/chLi/ShapeNet/mini/"
         os.makedirs(mini_dataset_folder_path, exist_ok=True)
 
-        for synset_id, synset in dataset_loader.synset_dict.items():
+        for synset_id, synset in dataset_loader.dataset.synset_dict.items():
             synset_folder_path = mini_dataset_folder_path + synset_id + "/"
-            for model_id, model in synset.model_dict:
+            for model_id, model in synset.model_dict.items():
                 model_file_path = model.normalized_obj_file_path
                 save_model_file_path = synset_folder_path + model_id + ".ply"
                 print(save_model_file_path)
