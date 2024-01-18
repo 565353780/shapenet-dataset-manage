@@ -5,10 +5,12 @@ import os
 from tqdm import tqdm
 from shutil import copyfile
 
-dataset_root_path = "/home/chli/chLi/ShapeNet/Core/ShapeNetCore.v2/"
-mini_dataset_root_path = "/home/chli/chLi/ShapeNet/mini/"
+dataset_root_path = "/home/chli/chLi/Dataset/ShapeNet/Core/ShapeNetCore.v2/"
+mini_dataset_root_path = "/home/chli/chLi/Dataset/ShapeNet/mini/"
 class_num = -1
-model_num = 10
+model_num = 100
+
+target_class = ['02691156', '03001627']
 
 os.makedirs(mini_dataset_root_path, exist_ok=True)
 
@@ -20,6 +22,9 @@ for class_idx, class_name in enumerate(class_name_list):
 
     class_folder_path = dataset_root_path + class_name + "/"
     if not os.path.isdir(class_folder_path):
+        continue
+
+    if class_name not in target_class:
         continue
 
     save_class_folder_path = mini_dataset_root_path + class_name + "/"
